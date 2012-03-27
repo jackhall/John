@@ -1,6 +1,6 @@
 /*
-    Alexander: a neural networks library
-    Copyright (C) 2011-2012  Jack Hall
+    John: an evolutionary algorithm for genetic networks
+    Copyright (C) 2012  Jack Hall
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
     e-mail: jackwhall7@gmail.com
 */
 
-namespace alex {
+namespace john {
 
 	template<unsigned int N,I,O>
 	Phenotype::Phenotype(Genotype<N,I,O>& genome) {	
@@ -199,7 +199,7 @@ namespace alex {
 		return random_bit(generator);
 	} //flip_coin
 	
-} //namespace alex
+} //namespace john
 
 
 

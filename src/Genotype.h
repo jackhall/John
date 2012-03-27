@@ -2,8 +2,8 @@
 #define Genotype_h
 
 /*
-    Alexander: a neural networks library
-    Copyright (C) 2011-2012  Jack Hall
+    John: an evolutionary algorithm for genetic networks
+    Copyright (C) 2012  Jack Hall
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #include <array>
 #include <bitset>
 
-namespace alex {
+namespace john {
 
 	template<unsigned int N, unsigned int I, unsigned int O>
 	class Fitness;
@@ -70,7 +70,7 @@ namespace alex {
 		
 	}; //class Genotype
 
-} //namespace alex
+} //namespace john
 
 #endif
 
