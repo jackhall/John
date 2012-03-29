@@ -21,7 +21,7 @@
 namespace john {
 
 	template<unsigned int N, unsigned int I, unsigned int O>
-	Genotype::Genotype(const unsigned int nID, 
+	Genotype::Genotype(const ID_type nID, 
 			   Fitness<N,I,O>* pFitness) 
 		: ID(nID), fitness(pFitness), value(0.0), generator(nID),
 		  link_chromosome(), decision_chromosome() {
@@ -48,11 +48,11 @@ namespace john {
 	} //constructor
 	
 	template<unsigned int N, unsigned int I, unsigned int O>
-	Genotype::Genotype(const unsigned int nID, const std::pair<Genotype*, Genotype*> parents) 
+	Genotype::Genotype(const ID_type nID, const std::pair<Genotype*, Genotype*> parents) 
 		: ID(nID), decision_chromosome(), link_chromosome(),
 		  fitness(parents.first->fitness), value(0.0), generator(nID) {
 		
-		float mutation_rate = 0.2, crossover_rate = 0.5;
+		real_type mutation_rate = 0.2, crossover_rate = 0.5;
 		int i, j, ii, jj;
 		
 		//breed new chromosomes from parents, use hardcoded mutation and crossover rates

@@ -32,7 +32,7 @@ namespace john {
 	//N is # of attractors (sqrt of # of nodes)
 	//I is # of non-boolean inputs to gene network
 	//O is # of non-boolean outputs from the network
-	template<unsigned int N=5, unsigned int I=3, unsigned int O=7> 
+	template<unsigned int N, unsigned int I, unsigned int O> 
 	class Genotype {
 	/*
 		Genotype stores a neuron's genome and associates it with the neuron's value
@@ -53,20 +53,20 @@ namespace john {
 		std::minstd_rand generator;
 		
 	public:
-		const unsigned int ID;
-		info_type value;
+		const ID_type ID;
+		real_type value;
 		
 		Genotype() = delete;
-		Genotype(const unsigned int nID,  
+		Genotype(const ID_type nID,  
 			 Fitness<N,I,O>* pFitness);
-		Genotype(const unsigned int nID, const Genotype& mother, const Genotype& father);
+		Genotype(const ID_type nID, const Genotype& mother, const Genotype& father);
 		Genotype(const Genotype& rhs) = delete;
 		//Genotype(Genotype&& rhs); 
 		Genotype& operator=(const Genotype& rhs) = delete;
 		//Genotype& operator=(Genotype&& rhs);
 		~Genotype();
 		
-		friend class Phenotype; //only Phenotype constructor actually needs access
+		friend class Phenotype<N,I,O>; //only Phenotype constructor actually needs access
 		
 	}; //class Genotype
 

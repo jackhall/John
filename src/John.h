@@ -23,11 +23,17 @@
 
 namespace john {
 
-	//typedefs
+	typedef float real_type;
+	typedef unsigned int ID_type;
 
 } //namespace john
 
-//includes
+#include "Genotype.h"
+#include "Fitness.h"
+#include "Phenotype.h"
+#include "Fitness.cpp"
+#include "Genotype.cpp"
+#include "Phenotype.cpp"
 
 #endif
 

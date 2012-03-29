@@ -28,8 +28,8 @@ namespace john {
 		positive, this will not work.
 		*/
 		//poll genotypes for value and compute the total value
-		vector<info_type> values( population.size(), 0.0 );
-		info_type total=0.0;
+		vector<real_type> values( population.size(), 0.0 );
+		real_type total=0.0;
 		auto itv = values.begin();
 		auto it = population.begin();
 		auto ite = population.end();
@@ -48,14 +48,14 @@ namespace john {
 	} //breed
 	
 	template<unsigned int N, unsigned int I, unsigned int O>
-	Genotype<N,I,O>* Fitness<N,I,O>::select(const vector<info_type>& values, 
-						const info_type total) {
+	Genotype<N,I,O>* Fitness<N,I,O>::select(const vector<real_type>& values, 
+						const real_type total) {
 		/*
 		This method iterates through the population, selecting one genotype
 		using a random number. The random number is scaled between 0 and the 
 		total population value, which corresponds to the total fitness.
 		*/
-		float choice = total * std::generate_canonical<float, 15>(generator);
+		real_type choice = total * std::generate_canonical<float, 15>(generator);
 		
 		auto it = values.begin();
 		auto ite = values.end();
@@ -69,24 +69,24 @@ namespace john {
 	} //select
 	
 	template<unsigned int N, unsigned int I, unsigned int O> 
-	bool Fitness<N,I,O>::add(const unsigned int address, Genotype<N,I,O>* new_genome) {
+	bool Fitness<N,I,O>::add(const ID_type address, Genotype<N,I,O>* new_genome) {
 		/*
 		Adds new Genotype and ID to the population. The map::insert method checks
 		to see whether that ID is already being used, and rejects the new value if
 		an old value exists. It also returns whether the new ID was added. 
 		*/
-		pair< unsigned int, Genotype<N,I,O>* > element;
+		pair< ID_type, Genotype<N,I,O>* > element;
 		auto result = population.insert( std::make_pair(address, new_genome) );
 		return result->second; //whether element was inserted
 	} //add
 	
 	template<unsigned int N, unsigned int I, unsigned int O> 
-	void Fitness<N,I,O>::remove(const unsigned int address) {
+	void Fitness<N,I,O>::remove(const ID_type address) {
 		population.erase(address); //does nothing if address is invalid
 	} //remove
 	
 	template<unsigned int N, unsigned int I, unsigned int O> 
-	bool Fitness<N,I,O>::update(const unsigned int address, Genotype<N>* pGenotype) {
+	bool Fitness<N,I,O>::update(const ID_type address, Genotype<N>* pGenotype) {
 		/*
 		Updates the pointer to an existing Genotype. Returns false if the address
 		is invalid.

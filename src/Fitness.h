@@ -38,7 +38,7 @@ namespace john {
 		map<unsigned int, Genotype<N,I,O>*> population;
 		std::minstd_rand generator; //for choosing individuals for breeding
 		
-		Genotype<N,I,O>* select(vector<info_type> values, info_type total);
+		Genotype<N,I,O>* select(vector<real_type> values, real_type total);
 		
 	public:
 		Fitness() = default;
@@ -48,12 +48,12 @@ namespace john {
 		//Fitness& operator=(Fitness&& rhs);
 		~Fitness() = default;
 		
-		unsigned population_size() { return population.size(); }
+		unsigned int population_size() { return population.size(); }
 		
 		std::pair< Genotype<N,I,O>*, Genotype<N,I,O>* > breed() const;
-		void add(const unsigned int address, Genotype<N>* new_genome);
-		void remove(const unsigned int address);
-		void update(const unsigned int address, Genotype<N>* pGenotype);
+		void add(const ID_type address, Genotype<N>* new_genome);
+		void remove(const ID_type address);
+		void update(const ID_type address, Genotype<N>* pGenotype);
 		
 	}; //class Fitness
 

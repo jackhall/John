@@ -20,8 +20,8 @@
 
 namespace john {
 
-	template<unsigned int N,I,O>
-	Phenotype::Phenotype(Genotype<N,I,O>& genome) {	
+	template<unsigned int N, unsigned int I, unsigned int O>
+	Phenotype<N,I,O>::Phenotype(Genotype<N,I,O>& genome) {	
 
 		int n = N*N*2*2 + (I+O+1)*17*N;
 		
@@ -39,7 +39,7 @@ namespace john {
 		//extract input decision boundaries
 		auto iti = input_decisions.begin(); //iterators for boolean genetic inputs (5)
 		auto itie = input_decisions.end();
-		array<float, 4>::iterator it, ite; //iterators for inner arrays
+		array<real_type, I+1>::iterator it, ite; //iterators for inner arrays
 		while(iti != itie) {
 			//get iterators for inner array (one set of boundary parameters)
 			it = iti->begin();
@@ -56,7 +56,7 @@ namespace john {
 		//extract output weights
 		auto ito = output_weights.begin(); //iterators for real outputs (7)
 		auto itoe = output_weights.end();
-		array<float, 5>::iterator iter, itere; //iterators for inner arrays
+		array<real_type, N>::iterator iter, itere; //iterators for inner arrays
 		while(ito != itoe) {
 			//get iterators for inner array (one set of output weights)
 			iter = ito->begin();
@@ -86,26 +86,11 @@ namespace john {
 			++itc; ++itl;
 		}
 		
-		//extract data for links, functions, input_decisions, output_coefficients
-		
-		/////////////////////
-		//old version, with chance functions
-		
-		//parse ChanceFunctions
-		//vector<float> dummy; //using constant-value chance functions for now
-		//clone_node_fcn = ChanceFunction(dummy, *it, 0.0, 0.0); ++it; //set vertical bias
-		//create_child_fcn = ChanceFunction(dummy, *it, 0.0, 0.0); ++it;
-		//kill_link_fcn = ChanceFunction(dummy, *it, 0.0, 0.0); ++it;
-		//create_link_fcn = ChanceFunction(dummy, *it, 0.0, 0.0); ++it;
-		
-		//parse learning_rate, momentum, and weight_decay
-		//learning_rate_val = 1/( 1 + exp(-(*it)) ); ++it;
-		//momentum_val = 1/( 1 + exp(-(*it)) ); ++it;
-		//weight_decay_val = 1/( 1 + exp(-(*it)) ); 
 	} //constructor
 
-	template<unsigned int N>
-	float Phenotype::get_real(std::bitset<N>& sequence, unsigned int start) const {
+	template<unsigned int N, unsigned int I, unsigned int O>
+	real_type Phenotype<N,I,O>::get_real(std::bitset<N*N*2*2 + (I+O+1)*17*N>& sequence, 
+					     const unsigned int start) const {
 		/*
 		Extracts a floating point number from a bit sequence. The number is encoded
 		with a sign and two integers, as shown below. This coding is compact and keeps
@@ -114,13 +99,14 @@ namespace john {
 		*/
 		if(sequence[start]) sign = 1.0;
 		else sign = -1.0;
-		a = get_integer<N>(sequence, start+1); 
-		b = get_integer<N>(sequence, start+9); //8-bit integers
+		a = get_integer(sequence, start+1); 
+		b = get_integer(sequence, start+9); //8-bit integers
 		return sign*a/(1.0 + b); 
 	} //get_real
 
-	template<unsigned int N> 
-	unsigned long Phenotype::get_integer(std::bitset<N>& sequence, unsigned int start) const {
+	template<unsigned int N, unsigned int I, unsigned int O>
+	unsigned long Phenotype<N,I,O>::get_integer(std::bitset<N*N*2*2 + (I+O+1)*17*N>& sequence, 
+						    unsigned int start) const {
 		/*
 		Translates an 8-bit portion of a bit sequence to an integer. The integers are
 		coded in the genome with Gray's coding, which hopefully improves the fitness
@@ -133,7 +119,8 @@ namespace john {
 		return gray_to_binary( integer.to_ulong() );
 	} //get_integer
 	
-	unsigned long gray_to_binary(unsigned long num) const {
+	template<unsigned int N, unsigned int I, unsigned int O>
+	unsigned long Phenotype<N,I,O>::gray_to_binary(unsigned long num) const {
 		/*
 		Translates a binary number in Gray's code to the same number in base 2. Got
 		this from the internet, so I hope it works. 
@@ -146,28 +133,29 @@ namespace john {
 	    	return num;
 	} //gray_to_binary
 	
-	void Phenotype::run(const float value; const float dvalue; const float persistence) {
+	template<unsigned int N, unsigned int I, unsigned int O>
+	void Phenotype<N,I,O>::run(const real_type value, const real_type dvalue, const real_type persistence) {
 		//run decision boundaries on inputs
-		std::array< std::array<float, 4>, 5 >& w = input_decisions; //shorthand
+		std::array< std::array<real_type, I+1>, N >& w = input_decisions; //shorthand
 		int i;
-		for(i=4; i>=0; --i) 
+		for(i=(N-1); i>=0; --i) 
 			state[i] = ( w[i][0]*value + w[i][1]*dvalue 
 				    +w[i][2]*persistence + w[i][3] ) > 0;
 		
 		//evaluate boolean network (update state)
-		bitset<25> new_state;
-		for(i=24; i>=0; --i) 
+		bitset<N*N> new_state;
+		for(i=(N*N-1); i>=0; --i) 
 			new_state[i] = gene_fcn( i, state[ links[i][0] ], state[ links[i][1] ] );
 		
-		for(i=24, i>=0; --i) state[i+5] = new_state[i];
+		for(i=(N*N-1), i>=0; --i) state[i+N] = new_state[i];
 
 		//calculate and store current output values
-		std::array< std::array<float, 5>, 7 >& v = output_weights; //shorthand
-		std::array<float, 7> outputs;
-		for(i=6; i>=0; --i) {
+		std::array< std::array<real_type, N>, O >& v = output_weights; //shorthand
+		std::array<real_type, O> outputs;
+		for(i=(O-1); i>=0; --i) {
 			//calculate values from v and states
 			outputs[i] = 0.0;
-			for(int j=4; j>=0; --j) outputs[i] += v[i][j] * state[25+j];
+			for(int j=(N-1); j>=0; --j) outputs[i] += v[i][j] * state[N*N+j];
 		}
 		//run each element of output through a sigmoid
 		learning_rate_val = sigmoid(outputs[0]);
@@ -179,11 +167,13 @@ namespace john {
 		make_node_prob	  = sigmoid(outputs[6]);
 	} //run
 	
-	float Phenotype::sigmoid(const float x) const {
+	template<unsigned int N, unsigned int I, unsigned int O>
+	real_type Phenotype<N,I,O>::sigmoid(const real_type x) const {
 		return 1/(1 + exp(-x));
 	}
 	
-	bool Phenotype::gene_fcn(const unsigned int gene_index, const bool a, const bool b) const {
+	template<unsigned int N, unsigned int I, unsigned int O>
+	bool Phenotype<N,I,O>::gene_fcn(const unsigned int gene_index, const bool a, const bool b) const {
 		if(a) {
 			if(b) return functions[gene_index][3];
 			else  return functions[gene_index][2];
@@ -193,15 +183,14 @@ namespace john {
 		}
 	}
 	
-	bool Phenotype::flip_coin(const float probability) {
+	template<unsigned int N, unsigned int I, unsigned int O>
+	bool Phenotype<N,I,O>::flip_coin(const real_type probability) {
 		//generate random bit from given probability
 		random_bit = std::bernoulli_distribution(probability);
 		return random_bit(generator);
 	} //flip_coin
 	
 } //namespace john
-
-
 
 
 ////////////////////////////////////////////////////
