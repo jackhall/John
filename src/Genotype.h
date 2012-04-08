@@ -46,6 +46,7 @@ namespace john {
 	private:
 		Fitness<N>* fitness;
 		//17 bit numbers, K=2 connectivity
+		std::bitset< //only need one chromosome now
 		std::bitset<N*N*2*2 + (I+O+1)*17*N> decision_chromosome;
 		std::array< std::bitset<N*N + N>, N*N > link_chromosome;
 		//mutation and crossover rates? probably just hardcode these for now

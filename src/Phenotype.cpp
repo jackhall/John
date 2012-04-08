@@ -135,6 +135,8 @@ namespace john {
 	
 	template<unsigned int N, unsigned int I, unsigned int O>
 	void Phenotype<N,I,O>::run(const real_type value, const real_type dvalue, const real_type persistence) {
+		//unroll loops with template metaprogramming?
+	
 		//run decision boundaries on inputs
 		std::array< std::array<real_type, I+1>, N >& w = input_decisions; //shorthand
 		int i;
@@ -152,12 +154,14 @@ namespace john {
 		//calculate and store current output values
 		std::array< std::array<real_type, N>, O >& v = output_weights; //shorthand
 		std::array<real_type, O> outputs;
-		for(i=(O-1); i>=0; --i) {
+		for(i=(O-1); i>=0; --i) { 
 			//calculate values from v and states
 			outputs[i] = 0.0;
 			for(int j=(N-1); j>=0; --j) outputs[i] += v[i][j] * state[N*N+j];
 		}
 		//run each element of output through a sigmoid
+		//for the sake of portability, these should not be named 
+		//put in another loop?
 		learning_rate_val = sigmoid(outputs[0]);
 		momentum_val 	  = sigmoid(outputs[1]);
 		weight_decay_val  = sigmoid(outputs[2]);
