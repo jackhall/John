@@ -25,7 +25,8 @@ namespace john {
 	
 	class BitTree {
 	private:
-		std::forward_list<BitNode> nodes;
+		std::multimap<unsigned short, BitNode> nodes;
+		std::forward_list<BitNode> leaves;
 		
 	public:
 		

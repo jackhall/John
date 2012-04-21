@@ -21,28 +21,30 @@
     e-mail: jackwhall7@gmail.com
 */
 
+#include <cmath>
+
 namespace john {
 
 	class BitNode {
 	private:
 		BitNode* parent, child_zero, child_one;
-		unsigned short depth;
+		unsigned short depth, branch_leaves;
 		float boundary;
 		bool value;
 		
+		void update_leaves();
+		void set_depth(const short new_depth);
+		
 	public:
-		BitNode() = delete;
-		BitNode(const bool bValue, const float fBoundary);
-		explicit BitNode(const bool bValue, const BitNode* pParent);
+		BitNode();
+		BitNode(BitNode* pParent, const bool child);
+		BitNode(const bool bValue, const float range, BitNode* child0, BitNode* child1);
 		BitNode(const BitNode& rhs);
 		BitNode& operator=(const BitNode& rhs);
 		~BitNode();
 	
 		bool operator<(const BitNode& rhs) const;
-		void update_boundary();
-		void update_pointers();
-		void split();
-		void join();
+		void update_boundary(const float lower_bound, const float upper_bound);
 		
 		void query(const float number, std::vector<bool>& binary) const;
 		
