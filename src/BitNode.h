@@ -30,12 +30,13 @@ namespace john {
 		BitNode* parent, child_zero, child_one;
 		unsigned short depth, branch_leaves;
 		float boundary;
-		bool value;
 		
 		void update_leaves();
 		void set_depth(const short new_depth);
 		
 	public:
+		bool value;
+		
 		BitNode();
 		BitNode(BitNode* pParent, const bool child);
 		BitNode(const bool bValue, const float range, BitNode* child0, BitNode* child1);
@@ -46,7 +47,7 @@ namespace john {
 		bool operator<(const BitNode& rhs) const;
 		void update_boundary(const float lower_bound, const float upper_bound);
 		
-		void query(const float number, std::vector<bool>& binary) const;
+		unsigned short query(const float number) const;
 		
 	}; //class BitNode
 	

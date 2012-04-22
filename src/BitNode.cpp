@@ -26,12 +26,12 @@ namespace john {
 	
 	BitNode::BitNode(BitNode* pParent, const bool zeroth_child) 
 		: parent(pParent), child_zero(NULL), child_one(NULL), 
-		  depth(parent->depth+1), value(false), branch_leaves(1) {
-		//for new leaf nodes
+		  depth(parent->depth+1), value(false), branch_leaves(1),
+		  boundary(0.0) {
+		//for new leaf nodes (no boundary need be calculated yet)
 		if(parent!=NULL) {
 			if(zeroth_child) parent->child_zero = this;
 			else parent->child_one = this;
-			//calculate boundary from parent and parent-parent
 		}
 	}
 	
@@ -135,7 +135,7 @@ namespace john {
 		}
 	}
 	
-	unsigned int query(const float number) const {	
+	unsigned short query(const float number) const {	
 		if(child_zero != NULL) { //if child_zero is NULL, so should child_one be
 			if(number > boundary) 
 				return child_zero->branch_leaves + child_one->query(number);
