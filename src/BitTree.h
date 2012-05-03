@@ -25,8 +25,8 @@ namespace john {
 	
 	class BitTree {
 	private:
-		std::multimap<unsigned short, BitNode> nodes;
-		std::forward_list<BitNode> leaves;
+		BitNode* pRoot;
+		float upper_bound, lower_bound;
 		
 	public:
 		

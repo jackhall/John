@@ -22,7 +22,7 @@ namespace john {
 
 	BitNode::BitNode() 
 		: parent(NULL), child_zero(NULL), child_one(NULL), depth(0),
-		  boundary(0.0), value(false), branch_leaves(0) {}
+		  boundary(0.0), value(false), branch_leaves(0) {} //use this for first root node
 	
 	BitNode::BitNode(BitNode* pParent, const bool zeroth_child) 
 		: parent(pParent), child_zero(NULL), child_one(NULL), 
@@ -32,6 +32,8 @@ namespace john {
 		if(parent!=NULL) {
 			if(zeroth_child) parent->child_zero = this;
 			else parent->child_one = this;
+			
+			update_leaves();
 		}
 	}
 	
@@ -39,7 +41,7 @@ namespace john {
 			 BitNode* child0, BitNode* child1) 
 		: parent(NULL), child_zero(child0), child_one(child1), depth(0), 
 		  boundary(fBoundary), value(bValue) {
-		//for new root nodes
+		//for new root nodes (to expand an existing tree)
 		if(child_zero!=NULL && child_one!=NULL) {
 			child_zero->set_depth(1);
 			child_one->set_depth(1);
@@ -49,17 +51,33 @@ namespace john {
 		}
 	}
 	
-	BitNode::BitNode(const BitNode& rhs) 
+	BitNode::BitNode(const BitNode& rhs)
+		: parent(NULL), child_zero(NULL), child_one(NULL), 
+		  depth(rhs.depth), boundary(rhs.boundary), value(rhs.value),
+		  branch_leaves(rhs.branch_leaves) {
+		
+		if(rhs.child_zero != NULL) {
+			child_zero = new BitNode(*rhs.child_zero);
+			child_zero->set_parent(this);
+		}
+		
+		if(rhs.child_one != NULL) {
+			child_one = new BitNode(*rhs.child_one);
+			child_one->set_parent(this);
+		}
+	}
+	
+	BitNode::BitNode(BitNode&& rhs) 
 		: parent(rhs.parent), child_zero(rhs.child_zero), child_one(rhs.child_one),
 		  depth(rhs.depth), boundary(rhs.boundary), value(rhs.value),
 		  branch_leaves(rhs.branch_leaves) {
-	
-		if(parent!=NULL) { //repeated in assignment operator
+		  	
+		if(parent!=NULL) { //repeated in move operator
 			if(parent->child_zero == &rhs) parent->child_zero = this;
 			else parent->child_one = this;
 		}
 		
-		if(child_zero!=NULL && child_one!=NULL) { //repeated in assignment operator
+		if(child_zero!=NULL && child_one!=NULL) { //repeated in move operator
 			child_zero->parent = this;
 			child_one->parent = this;
 		}
@@ -69,7 +87,25 @@ namespace john {
 		rhs.child_one = NULL;
 	}
 	
-	BitNode& BitNode::operator=(const BitNode& rhs) {	
+	BitNode& BitNode::operator=(const BitNode& rhs) {
+		if(this != &rhs) {
+			if(child_one != NULL) delete child_one;
+			if(child_zero != NULL) delete child_zero;
+			
+			value = rhs.value;
+			boundary = rhs.boundary;
+			branch_leaves = rhs.branch_leaves;
+			
+			child_zero = new BitNode(*rhs.child_zero);
+			child_zero->set_parent(this);
+			child_one = new BitNode(*rhs.child_one);
+			child_one->set_parent(this);
+		}
+		
+		return *this;
+	}
+	
+	BitNode& BitNode::operator=(BitNode&& rhs) {	
 		if(this != &rhs) {
 			parent = rhs.parent;
 			child_zero = rhs.child_zero;
@@ -79,12 +115,12 @@ namespace john {
 			value = rhs.value;
 			branch_leaves = rhs.branch_leaves;
 			
-			if(parent!=NULL) { //repeated in copy constructur
+			if(parent!=NULL) { //repeated in move constructur
 				if(parent->child_zero == &rhs) parent->child_zero = this;
 				else parent->child_one = this;
 			}
 			
-			if(child_zero!=NULL && child_one!=NULL) { //repeated in copy constructor
+			if(child_zero!=NULL && child_one!=NULL) { //repeated in move constructor
 				child_zero->parent = this;
 				child_one->parent = this;
 			}
@@ -93,27 +129,39 @@ namespace john {
 			rhs.child_zero = NULL;
 			rhs.child_one = NULL;
 		}
+		
+		return *this;
 	}
 	
 	BitNode::~BitNode() {
-		if(child_zero!=NULL) child_zero->parent = NULL;
-		if(child_one!=NULL) child_one->parent = NULL;
+		if(child_zero!=NULL) delete child_zero;
+		if(child_one!=NULL) delete child_one;
 		if(parent!=NULL) {
-			if(value) parent->child_one = NULL;
+			if(parent->child_one == this) parent->child_one = NULL;
 			else parent->child_zero = NULL;
 		}
 	}
 	
-	bool BitNode::operator<(const BitNode& rhs) const {
-		//if percent difference in boundaries is small....
-		if((parent->boundary - rhs.parent->boundary)/parent->boundary < 0.001) 
-			return this == parent->child_zero;
-		else return parent->boundary < rhs.parent->boundary;
+	void BitNode::set_parent(BitNode* pParent) {
+		parent = pParent;
+		if(parent != NULL) set_depth(parent->depth + 1);
+	}
+	
+	void BitNode::split(const bool bValue) {
+		//how does the node know where to place its new boundary? 
+		//could just leave it alone and require the tree to
+		//call update_boundary
+		value = bValue;
+		if(child_zero==NULL && child_one==NULL) {
+			child_zero = new BitNode(this, true);
+			child_one = new BitNode(this, false);
+			branch_leaves = 2;
+		}
 	}
 	
 	void BitNode::update_boundary(const float lower_bound, const float upper_bound) {
 		float ratio = 2.0/(1.0 + sqrt(5));
-		if(child_zero!=NULL) {
+		if(child_zero!=NULL && child_one!=NULL) {
 			if(value) boundary = lower_bound + ratio*(upper_bound - lower_bound);
 			else boundary = lower_bound + (1-ratio)*(upper_bound - lower_bound);
 			

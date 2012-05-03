@@ -28,25 +28,27 @@ namespace john {
 	class BitNode {
 	private:
 		BitNode* parent, child_zero, child_one;
-		unsigned short depth, branch_leaves;
+		unsigned short depth, branch_leaves; //does depth need to be a field anymore?
 		float boundary;
 		
-		void update_leaves();
 		void set_depth(const short new_depth);
+		void set_parent(BitNode* pParent);
 		
 	public:
 		bool value;
 		
 		BitNode();
 		BitNode(BitNode* pParent, const bool child);
-		BitNode(const bool bValue, const float range, BitNode* child0, BitNode* child1);
+		BitNode(const bool bValue, const float range, BitNode* child0=NULL, BitNode* child1=NULL);
 		BitNode(const BitNode& rhs);
+		BitNode(BitNode&& rhs);
 		BitNode& operator=(const BitNode& rhs);
+		BitNode& operator=(BitNode&& rhs);
 		~BitNode();
-	
-		bool operator<(const BitNode& rhs) const;
-		void update_boundary(const float lower_bound, const float upper_bound);
 		
+		void split(const bool bValue);
+		void update_boundary(const float lower_bound, const float upper_bound);
+		void update_leaves();
 		unsigned short query(const float number) const;
 		
 	}; //class BitNode
