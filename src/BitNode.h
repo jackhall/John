@@ -28,11 +28,10 @@ namespace john {
 	class BitNode {
 	private:
 		BitNode* parent, child_zero, child_one;
-		unsigned short depth, branch_leaves; //does depth need to be a field anymore?
+		unsigned short branch_leaves; 
 		float boundary;
 		
-		void set_depth(const short new_depth);
-		void set_parent(BitNode* pParent);
+		float find_boundary() const;
 		
 	public:
 		bool value;
