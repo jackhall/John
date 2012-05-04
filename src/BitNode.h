@@ -31,7 +31,7 @@ namespace john {
 		unsigned short branch_leaves; 
 		float boundary;
 		
-		float find_boundary() const;
+		float infer_boundary() const;
 		
 	public:
 		bool value;

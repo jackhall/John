@@ -140,28 +140,33 @@ namespace john {
 		}
 	}
 	
-	float BitNode::find_boundary() const {
-		float parent_upper_bound, parent_lower_bound;
+	void BitNode::infer_boundary() const {
+		float upper_bound, lower_bound, gap, ratio = 2.0/(1.0 + sqrt(5));
 		if(parent!=NULL && parent->parent!=NULL) {
-			if(parent->parent->child_zero == parent) {
-				parent_upper_bound = parent->parent->boundary;
-				if(parent->child_zero == this) {
-					if(parent->value)
-						
-					else
-						
-				} else {
-
-				}
+			if(parent->child_zero == this) {
+				upper_bound = parent->boundary;
+				
+				if(parent->parent->child_zero == parent) {
+					gap = parent->parent->boundary - parent->boundary;
+					if(parent->value) 
+						lower_bound = parent->boundary - gap/ratio;
+					else lower_bound = parent->boundary - gap*ratio;
+				} else lower_bound = parent->parent->boundary;
+				
 			} else {
-				parent_lower_bound = parent->parent->boundary;
-				if(parent->child_zero == this) {
-					
-				} else {
-					
+				lower_bound = parent->boundary;
+				
+				if(parent->parent->child_zero == parent) 
+					upper_bound = parent->parent->boundary;
+				else {
+					gap = parent->boundary - parent->parent->boundary;
+					if(parent->value) 
+						upper_bound = parent->boundary + gap*ratio;
+					else upper_bound = parent->boundary + gap/ratio;
 				}
 			}
-		} else return boundary;
+			update_boundary(lower_bound, upper_bound); 
+		} 
 	}
 	
 	void BitNode::split(const bool bValue) {
@@ -178,10 +183,10 @@ namespace john {
 	
 	void BitNode::update_boundary(const float lower_bound, const float upper_bound) {
 		float ratio = 2.0/(1.0 + sqrt(5));
-		if(child_zero!=NULL && child_one!=NULL) {
-			if(value) boundary = lower_bound + ratio*(upper_bound - lower_bound);
-			else boundary = lower_bound + (1-ratio)*(upper_bound - lower_bound);
-			
+		if(value) boundary = lower_bound + ratio*(upper_bound - lower_bound);
+		else boundary = lower_bound + (1-ratio)*(upper_bound - lower_bound);
+		
+		if(child_zero!=NULL && child_one!=NULL) {		
 			child_zero->update_boundary(lower_bound, boundary);
 			child_one->update_boundary(boundary, upper_bound);
 		}
